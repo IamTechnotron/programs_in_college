@@ -1,0 +1,174 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define max 3
+
+
+typedef struct queue
+{
+    int l[max];
+    int front, rear, len;
+}queue;
+
+void create(queue *);           //  Creates a queue, by assigning its rear and front =0
+int insert(queue *, int);       //  queue, pos, val  | returns whether input successful(1) or not(0)!
+int del(queue *, int *);        //  queue, deleted value  | return same as insert
+void display(queue *);          //  Displays a queue;
+int isFull(queue *);
+int isEmpty(queue *);
+
+
+int isFull(queue *q)
+{
+    if(q->len == max)
+        return 1;
+    return 0;
+}
+
+
+int isEmpty(queue *q)
+{
+    if(q->front == q->rear && q->len == 0)
+        return 1;
+    return 0;
+}
+
+
+void create(queue *q)
+{
+    q->rear = 0;
+    q->front = 0;
+    q->len = 0;
+}
+
+
+void display(queue *q)
+{
+    int i;
+    if(isEmpty(q))
+    {
+        printf("\nERROR : EMPTY queue !\n-Nothing to show\n");
+    }
+    else
+    {
+        printf("\n QUEUE >>> ");
+        if(q->rear > q->front)
+        {
+            for(i=q->front; i< q->rear; i++)
+                printf("| %d ",q->l[i]);
+        }
+
+        if(q->front > q->rear)
+        {
+            for(i=q->front; i<max; i++)
+                printf("| %d ",q->l[i]);
+            for(i=0; i<q->rear; i++)
+                printf("| %d ",q->l[i]);
+        }
+
+        if(q->len != 0  && q->rear == q->front)
+        {
+            for(i=q->front; i<max; i++)
+                printf("| %d ",q->l[i]);
+            for(i=0; i<q->rear; i++)
+                printf("| %d ",q->l[i]);
+        }
+        printf("|\n\n");
+    }
+}
+
+
+int insert(queue *q, int val)
+{
+    if(!isFull(q))
+    {
+        if(q->rear >= max && q->front > 0)
+        {
+            q->rear = 0;
+        }
+        q->l[q->rear] = val;
+        q->rear ++;
+        q->len ++;
+        return 1;
+    }
+    return 0;
+}
+
+
+int del(queue *q, int *val)
+{
+    if(!isEmpty(q))
+    {
+        if(q->front >= max)
+        {
+            *val = q->l[0];
+            q->l[0] = NULL;
+            q->front = 1;
+            q->len --;
+        }
+        else
+        {
+            *val = q->l[q->front];
+            q->l[q->front] = NULL;
+            q->front ++;
+            q->len --;
+        }
+        return 1;
+    }
+    return 0;
+}
+
+
+int main()
+{
+    int ch, val, del_val;
+    queue q;
+    create(&q);
+    while(1)
+    {
+        system("clear");        // in Windows environment, use: system("cls");
+        printf("\n  ******** __WELCOME TO QUEUE MANAGEMENT SYSTEM (CIRCULAR QUEUE)__ ********\n");
+        if(!isEmpty(&q))
+        {
+            display(&q);
+        }
+        printf("\n-- Choose from the menu --\n");
+        printf("1. Insert\n2. Delete\n3. Exit\n>>> ");
+        scanf("%d",&ch);
+        switch (ch)
+        {
+            case 1  :   printf("\t-- Insert --\n");
+                        if(!isFull(&q))
+                        {
+                            printf("Please enter the value : "); scanf("%d", &val);
+                            insert(&q, val);
+                            printf("Insertion was Successful !\n");
+                        }
+                        else
+                        {
+                            printf("\n\nERROR : QUEUE IS FULL: Try deleting a few elements first!\n\n");
+                        }
+                        break;
+
+            case 2  :   printf("\t-- Deleting --\n");
+                        if(isEmpty(&q))
+                        {
+                            printf("\nEmpty queue...\nNothing to Insert!\n");
+                        }
+                        if(del(&q, &del_val))
+                        {
+                            printf("\nDeletion of %d was successful!",del_val);
+                        }
+                        break;
+
+            case 3  :   printf("\nExiting...\n");
+                        exit(0);
+                        break;
+
+            default :   printf("\n\nERROR : WRONG CHOICE !\nPlease choose between choices given ! \n\n");
+        }
+        printf("\npress any key to continue......");
+        printf("\n**************************************************************************\n");
+        getchar(); getchar();
+    }
+    return 0;
+}

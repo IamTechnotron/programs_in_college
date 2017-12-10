@@ -1,0 +1,121 @@
+/* This program transforms any given string to pallindrom, with as minimum changes as possible.
+   Using only addition at the end, and replacement in the middle.
+   No other changes. */
+   
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define size 10
+
+int even(char *);
+int odd(char *);
+
+int main()
+{
+    char string[ size];
+    int len, i,flag;
+
+    printf("Enter the String: ");
+    gets(string);
+    printf("You entered: ");
+    puts(string);
+
+    len=strlen(string);
+
+    if(len%2 == 0)
+    {
+       flag=even(string);
+    }
+    else
+    {
+        flag=odd(string);
+    }
+
+    if(flag == 0)
+    {
+        printf("String is already a Pallindrom");
+    }
+    else if(flag > 0)
+    {
+        printf("The String is succesfully converted, with %d steps.\nNew String : ",flag);
+        puts(string);
+    }
+    else
+    {
+        printf("SYSTEM ERROR : operation could not be completed!");
+    }
+    return 0;
+}
+
+/* The even function:
+    This  function is called upon, when the entered string is of even length.
+    All the work this function does is adding the 1st letter to the end, increasing its lenght by one.
+    And then it sends the new string to the odd function.
+    After getting the result from odd function, it sends back the result+1.
+    Returns a -ive no, if some error occurs while convertion! */
+
+int even(char *s)
+{
+    int flag = -1, len;
+
+    len = strlen(s);
+    s[len] = s[0];
+    s[len+1] = '\0';
+    flag = odd(s);
+    if(flag >= 0)
+    {
+        flag++;
+    }
+    return flag;
+}
+
+/* The odd function:
+    This function is basically the hero of the show.
+    It's called upon by both main and even(), whenever an string of odd lenght is found.
+    Its working:
+    1st it breaks the string into 2 parts, of equal lenght, neglecting the middle char.
+    { A Note: the second part is stored in reverse way. }
+    Now, it matches both strings, and performs a change whenever an difference is occured.
+    i.e. It replaces the letter in second part, with the letter from 1st.
+    And then once finished, it copies the second part to the original string, after the middle. */
+
+int odd(char *s)
+{
+    int flag =0, len_s1, len_s2, len, i;
+    char s1[ size], s2[ size] ;
+    len=strlen(s);
+
+    for(i = 0; i <(int)(len / 2); i++)
+    {
+        s1[i] = s[i];
+        s2[i] = s[len - (1 + i)];
+    }
+    s1[i] = '\0';
+    s2[i] = '\0';
+    len_s1 = strlen(s1);
+    len_s2 = strlen(s2);
+
+    while(strcmp(s1, s2))
+    {
+        for(i=0; s1[i]; i++)
+        {
+            if(s1[i] != s2[i])
+            {
+                s2[i] = s1[i];
+                flag ++;
+            }
+        }
+    }
+    if((flag +1) > 0)
+    {
+        for(i = 0; i < len_s2; i++)
+        {
+
+            s[(len / 2) + 1 + i] = s2[len_s2 - (1 + i)];
+
+        }
+
+       s[(len / 2) + 1 + i] = '\0';
+    }
+    return (flag);
+}

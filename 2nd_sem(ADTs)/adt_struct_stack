@@ -1,0 +1,136 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define max 100
+
+typedef struct stack
+{
+    int l[max];
+    int top;
+}stack;
+
+void create(stack *);        //  Creates a stack, by assigning its top =0
+int push(stack *, int);     //  stack, pos, val  | returns whether input successful(1) or not(0)!
+int pop(stack *, int *);   //  stack, pos, deleted value  | return same as push
+void display(stack *);    //  Displays a stack;
+int isFull(stack *);
+int isEmpty(stack *);
+
+
+void create(stack *ps)
+{
+    ps->top=0;
+}
+
+void display(stack *ps)
+{
+    int i;
+    if(ps->top == 0)
+    {
+        printf("\nERROR : EMPTY stack !\n-Nothing to show\n");
+    }
+    else
+    {
+            for(i=0; i< ps->top; i++)
+            {
+                printf("| %d ",ps->l[i]);
+            }
+            printf("|\n");
+    }
+}
+
+int push (stack *ps, int val)
+{
+    if(!isFull(ps))
+    {
+        ps->l[ps->top++] = val;
+        return 1;
+    }
+    return 0;
+
+}
+
+int pop(stack *ps, int *val)
+{
+    if(!isEmpty(ps))                      // pushing at 1st and last place
+    {
+        *val = ps->l[(ps->top)-1];
+        ps->top--;
+        return 1;
+    }
+    return 0;
+}
+
+int isFull(stack *ps)
+{
+    if(ps->top == max)
+        return 1;
+    return 0;
+}
+
+int isEmpty(stack *ps)
+{
+    if(ps->top == 0)
+        return 1;
+    return 0;
+}
+
+int main()
+{
+    int ch, val, pop_val;
+    stack lst;
+
+    printf("\t\t\tWELCOME TO UNI-stack MANAGEMENT SYSTEM (U.L.M.S.)\n");
+    create(&lst);
+    while(1)
+    {
+        printf("\n-- Choose from the menu --\n");
+        printf("1. Push\n2. Display\n3. Pop\n4. Exit\n>>> ");
+        scanf("%d",&ch);
+        switch (ch)
+        {
+            case 1  :   printf("\t-- Push --\n");
+                        printf("Please enter the value : "); scanf("%d", &val);
+                        if(push(&lst, val))
+                        {
+                            printf("push Successful !\n");
+                        }
+                        else
+                        {
+                            printf("ERROR : push Unsuccessful !\n");
+                        }
+                        break;
+
+            case 2  :   printf("\t-- Display --\n\n");
+                        display(&lst);
+                        break;
+
+            case 3  :   printf("\t-- Poping --\n");
+                        if(lst.top==0)
+                        {
+                            printf("\nEmpty stack...\nNothing to pop!\n");
+                        }
+                        if(pop(&lst, &pop_val))
+                        {
+                            printf("\nPoped : %d was successful!",pop_val);
+                            if(lst.top == 0)
+                            {
+                               printf("\n>[IMPORTANT] : The stack is now empty!");
+                            }
+                        }
+                        else
+                        {
+                            printf("\nERROR : Poping was Unsuccessful!");
+                        }
+                        break;
+
+            case 4  :   printf("\nExiting...\n");
+                        exit(0);
+                        break;
+
+            default :   printf("ERROR : WRONG CHOICE !\nPlease choose between choices given ! ");
+        }
+        printf("\n*************************************************************************");
+    }
+    return 0;
+
+}

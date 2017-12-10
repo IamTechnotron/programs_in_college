@@ -1,0 +1,142 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define max 100
+
+typedef struct queue
+{
+    int l[max];
+    int front, rear;
+}queue;
+
+void create(queue *);           //  Creates a queue, by assigning its rear and front =0
+int insert(queue *, int);       //  queue, pos, val  | returns whether input successful(1) or not(0)!
+int del(queue *, int *);        //  queue, deleted value  | return same as insert
+void display(queue *);          //  Displays a queue;
+int isFull(queue *);
+int isEmpty(queue *);
+
+
+void create(queue *q)
+{
+    q->rear = 0;
+    q->front = 0;
+}
+
+
+void display(queue *q)
+{
+    int i;
+    if(isEmpty(q))
+    {
+        printf("\nERROR : EMPTY queue !\n-Nothing to show\n");
+    }
+    else
+    {
+        printf("\n QUEUE=====>> ");
+            for(i=q->front; i< q->rear; i++)
+            {
+                printf("| %d ",q->l[i]);
+            }
+            printf("|\n\n");
+    }
+}
+
+
+int insert(queue *q, int val)
+{
+    if(!isFull(q))
+    {
+        q->l[q->rear++] = val;
+        return 1;
+    }
+    return 0;
+
+}
+
+
+int del(queue *q, int *val)
+{
+    if(!isEmpty(q))                      // pushing at 1st and last place
+    {
+        *val = q->l[q->front];
+        (q->front)++;
+        return 1;
+    }
+    return 0;
+}
+
+
+int isFull(queue *q)
+{
+    if(q->rear == max)
+        return 1;
+    return 0;
+}
+
+
+int isEmpty(queue *q)
+{
+    if(q->rear == q->front)
+        return 1;
+    return 0;
+}
+
+
+int main()
+{
+    int ch, val, del_val;
+    queue q;
+    create(&q);
+    while(1)
+    {
+        system("clear");
+        printf("\n  ********  __WELCOME TO QUEUE MANAGEMENT SYSTEM (LINEAR QUEUE)__  ********\n");
+        if(q.rear > 0)
+        {
+            display(&q);
+        }
+        printf("\n-- Choose from the menu --\n");
+        printf("1. Insert\n2. Delete\n3. Exit\n>>> ");
+        scanf("%d",&ch);
+        switch (ch)
+        {
+            case 1  :   printf("\t-- Insert --\n");
+                        printf("Please enter the value : "); scanf("%d", &val);
+                        if(insert(&q, val))
+                        {
+                            printf("insert Successful !\n");
+                        }
+                        else
+                        {
+                            printf("ERROR : insert Unsuccessful !\n");
+                        }
+                        break;
+
+            case 2  :   printf("\t-- Deleting --\n");
+                        if(isEmpty(&q))
+                        {
+                            printf("\nEmpty queue...\nNothing to Insert!\n");
+                        }
+                        if(del(&q, &del_val))
+                        {
+                            printf("\nDeletion of %d was successful!",del_val);
+                        }
+                        else
+                        {
+                            printf("\nERROR : Deleting was Unsuccessful!");
+                        }
+                        break;
+
+            case 3  :   printf("\nExiting...\n");
+                        exit(0);
+                        break;
+
+            default :   printf("ERROR : WRONG CHOICE !\nPlease choose between choices given ! ");
+        }
+
+        printf("\n press any key to continue......");
+        printf("\n*************************************************************************\n");
+        getchar(); getchar();
+    }
+    return 0;
+}

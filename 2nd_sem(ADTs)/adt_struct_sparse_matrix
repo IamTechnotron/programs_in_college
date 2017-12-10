@@ -1,0 +1,307 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 50
+
+/*  
+ * This is a prototype of sparse matrix handling...
+ *  It takes a normal matrix input
+ *  Converts it into the encoded form, if possible
+ *  Can display the encoded matrix
+ *  Can restore that encoded matrix to its original form
+ *  Can transpose an matrix in encoded form. (still not complete though
+ *  All these functions are working on just 1 matrix, being a prototype.
+ */
+
+typedef struct sp_element
+{
+    int row, col, val;
+}element;
+
+typedef struct sp_mat
+{
+    element item[MAX];
+    int max_row, max_col, max_element;
+}sp_mat;
+
+void sort(sp_mat *);
+void input2D(int *, int, int);                  // takes input of any 2D array/matrix
+void print(int *, int, int);                    // prints any 2D array/matrix
+void display(sp_mat *);                         // displays any sparse matrix
+int check(int *, int, int);                     // checks if a matrix is sparse or not
+int create (int *, int, int, sp_mat *);         // converts a 2D matrix to the encoded form of sparse matrix representation
+void restore(sp_mat *, int *, int *, int *);    // restores a matrix from the encoded form of sparse matrix representation to normal form
+void trans(sp_mat *, sp_mat *);                 // transposes the original matrix in the encoded form of sparse matrix representation
+
+
+void sort(sp_mat *mat)
+{
+    element temp;
+    int i, j, len;
+    len = mat->max_element;
+
+    // Arranging row-wise.
+
+    for (i = 0; i < len - 1; i ++)
+    {
+        for (j = 0; j < len - (i + 1); j++)
+        {   if (mat->item[j].row > mat->item[j + 1].row)
+            {
+                // Swap the two
+                temp = mat->item[j];
+                mat->item[j] = mat->item[j+1];
+                mat->item[j +1] = temp;
+            }
+        }
+    }
+
+    // Arranging column-wise.
+
+    for (i = 0; i < len - 1; i ++)
+    {
+        for (j = 0; j < len - (i + 1); j++)
+        {   if (mat->item[j].col > mat->item[j + 1].col && mat->item[j].row == mat->item[j + 1].row)
+            {
+                // Swap the two
+                temp = mat->item[j];
+                mat->item[j] = mat->item[j+1];
+                mat->item[j +1] = temp;
+            }
+        }
+    }
+}
+
+
+void input2D(int *arr, int r, int c)
+{
+    int i, j;
+    for (i=0; i<r; i++)
+    {
+        for (j=0; j<c; j++)
+        {
+            scanf("%d",((arr+i*MAX) + j));
+        }
+    }
+}
+
+
+void print(int *arr, int r, int c)
+{
+    int i, j;
+    for (i = 0; i < r; i++)
+    {
+        for (j = 0; j < c; j++)
+            printf("%d ", *((arr+i*MAX) + j));
+        printf("\n\n");
+    }
+}
+
+
+int check(int *ar, int r, int c)
+{
+    int total = r*c, i, j, flag=0 ;
+    for (i = 0; i < r; i++)
+    {
+        for (j = 0; j < c; j++)
+        {
+            if(*((ar+i*MAX) + j) == 0)
+                flag ++;
+        }
+    }
+    if(flag >= (2/3)*total)
+        return 1;
+    return 0;
+}
+
+
+int create(int *ar, int r, int c, sp_mat * mat)
+{
+    int i, j, k;
+    if(check(ar,r,c))
+    {
+        k=0;
+        mat -> max_row = r;
+        mat -> max_col = c;
+        for (i=0; i<r; i++)
+        {
+            for (j=0; j<c; j++)
+            {
+                if(*((ar+i*MAX) + j))
+                {
+                   mat -> item[k].row = i;
+                   mat -> item[k].col = j;
+                   mat -> item[k].val = (*((ar+i*MAX) + j));
+                   k++;
+                }
+            }
+        }
+        mat -> max_element = k;
+        return 1;
+    }
+    return 0;
+}
+
+
+void display(sp_mat *mat)
+{
+    int i, c, r, n;
+    c = mat -> max_col;
+    r = mat -> max_row;
+    n = mat -> max_element;
+    printf("\n%3d  %3d  %3d\n\n",r,c,n);
+    for(i=0; i<n; i++)
+    {
+        printf("%3d  %3d  %3d\n",mat->item[i].row,mat->item[i].col,mat->item[i].val);
+    }
+    printf("\n");
+}
+
+
+void restore(sp_mat *mat, int *ar, int *r, int *c)
+{
+    int i, j, k, n;
+    *c = mat -> max_col;
+    *r = mat -> max_row;
+    n = mat -> max_element;
+    for(i=0; i<*r; i++)
+    {
+        for(j=0; j<*c; j++)
+            (*((ar+i*MAX) + j)) = 0;
+    }
+    for (k=0; k<n; k++)
+    {
+        i = mat -> item[k].row;
+        j = mat -> item[k].col;
+        (*((ar+i*MAX) + j)) = mat -> item[k].val;
+    }
+}
+
+
+void trans(sp_mat *mat1, sp_mat *mat2)
+{
+    int i;
+    mat2->max_col = mat1->max_row;
+    mat2->max_row = mat1->max_col;
+    mat2->max_element = mat1->max_element;
+
+    for(i=0; i<mat1->max_element; i++)
+    {
+        mat2->item[i].row = mat1->item[i].col;
+        mat2->item[i].col = mat1->item[i].row;
+        mat2->item[i].val = mat1->item[i].val;
+    }
+    sort(mat2);
+}
+
+
+
+int main()
+{
+    int i, j, ch, row, col, flag, matrix[MAX][MAX], row_out, col_out, matrix_out[MAX][MAX];
+    char c;
+    sp_mat mat, mat_trans;
+    flag = 0;
+    printf("\t\t\tWELCOME TO SPARSE MATRIX MANAGEMENT SYSTEM (S.M.M.S.)\n");
+    while(1)
+    {
+        printf("\n-- Choose from the menu --\n");
+        printf("\n1. ENTER a matrix     \n2. CREATE an encoded matrix from a sparse matrix");
+        printf("\n3. DISPLAY an encode matrix       \n4. RESTORE an encoded matrix to a normal matrix");
+        printf("\n5. TRANSPOSE a matrix in encoded form     \n6. Exit\n>>> ");
+        scanf("%d",&ch);
+        switch(ch)
+        {
+            case 1: printf("\n\n--ENTER--\n\n");
+                    printf("Enter the number of rows : ");
+                    scanf("%d",&row);
+                    printf("Enter the number of columns : ");
+                    scanf("%d",&col);
+
+                    printf("Enter the matrix:\n");
+                    input2D((int *)matrix, row, col);
+
+                    printf("\nThe matrix you entered is :\n\n");
+                    print((int *)matrix, row, col);
+                    flag = -1;
+                    break;
+
+            case 2: printf("\n\n--CREATE--\n\n");
+                    if(flag == -1)
+                    {
+                        if(create((int *)matrix, row, col, &mat))
+                        {
+                            printf("SUCCESS!\nThe resultant matrix:\n");
+                            display(&mat);
+                            flag = 1;
+                        }
+                        else
+                            printf("ERROR : The matrix you asked to convert is not a Sparse matrix!\n");
+                    }
+                    else
+                    {
+                        printf("ERROR : There is no matrix in the memory...\nStart by entering one\n...");
+                    }
+                    break;
+
+            case 3: printf("\n\n--DISPLAY--\n\n");
+                    if(flag == 1)
+                    {
+                        printf("The encoded form is:\n");
+                        display(&mat);
+                        if(mat_trans.max_element != 0)
+                        {
+                            printf("The transposed form is:\n");
+                            display(&mat_trans);
+                        }
+                    }
+                    else
+                    {
+                        printf("ERROR : There is no encoded sparse matrix form in the memory...\n");
+                    }
+                    break;
+
+            case 4: printf("\n\n--RESTORE--\n\n");
+                    if(flag == 1)
+                    {
+                        restore(&mat, (int *)matrix_out, &row_out, &col_out);
+                        printf("Restored matrix :\n");
+                        print((int *)matrix_out, row_out, col_out);
+                        flag = 0;
+                        printf("[IMPORTANT] There is no more any encoded form of sparse matrix in the memory\n");
+                    }
+                    else
+                    {
+                        printf("ERROR : There is no encoded sparse matrix form in the memory...\n");
+                    }
+                    break;
+
+            case 5: printf("\n\n--TRANSPOSE--\n\n");
+                    if(flag == 1)
+                    {
+                        trans(&mat, &mat_trans);
+                        printf("Transposed matrix :\n");
+                        display(&mat_trans);
+                        printf("Do you want to view the original expanded form? (y for yes, or any key to continue :");
+                        scanf(" %c",&c);
+                        if(c == 'y')
+                        {
+                            restore(&mat_trans, (int *)matrix_out, &row_out, &col_out);
+                            print((int *)matrix_out, row_out, col_out);
+                        }
+                    }
+                    else
+                    {
+                        printf("ERROR : There is no encoded sparse matrix form in the memory...\n");
+                    }
+
+                    break;
+
+            case 6: printf("\nExiting...\n");
+                    exit(0);
+                    break;
+
+            default :   printf("ERROR : WRONG CHOICE !\nPlease choose between choices given !");
+        }
+        printf("\n*************************************************************************\n");
+    }
+    return 0;
+}
